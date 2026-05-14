@@ -39,7 +39,7 @@ wss.on("connection", (ws) => {
 });
 
 // Browser → EC2 → Laptop
-app.get("/:tunnelId/*", (req, res) => {
+app.get("/:tunnelId", (req, res) => {
   const tunnelId = req.params.tunnelId;
 
   const client = tunnels[tunnelId];
