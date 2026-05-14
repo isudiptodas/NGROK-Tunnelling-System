@@ -21,7 +21,7 @@ async function startTunnel() {
     process.exit(1);
   }
 
-  const ws = new WebSocket("ws://43.205.195.230:8080");
+  const ws = new WebSocket("ws://<EC2-IP>:8080");
 
   ws.on("open", () => log("Connected to tunnel server"));
 
@@ -30,7 +30,7 @@ async function startTunnel() {
       const data = JSON.parse(message);
 
       if (data.type === "connected") {
-        log(`Tunnel is live at http://43.205.195.230:3000/${data.tunnelId}`);
+        log(`Tunnel is live at http://<EC2-IP>:3000/${data.tunnelId}`);
         return;
       }
 
