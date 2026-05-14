@@ -6,11 +6,15 @@ const app = express();
 
 const tunnels = {};
 
-const httpServer = app.listen(80, () => {
+const httpServer = app.listen(3000, "0.0.0.0", () => {
   console.log("HTTP server running on port 80");
 });
 
-const wss = new WebSocketServer({ port: 8080 });
+//const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({
+  host: "0.0.0.0",
+  port: 8080
+});
 
 wss.on("connection", (ws) => {
   const tunnelId = crypto.randomBytes(3).toString("hex");
