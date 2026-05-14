@@ -14,7 +14,7 @@ const httpServer = app.listen(80, () => {
 const wss = new WebSocketServer({ port: 8080 });
 
 wss.on("connection", (ws) => {
-  const tunnelId = uuid().slice(0, 6);
+  const tunnelId = crypto.randomBytes(3).toString("hex");
 
   tunnels[tunnelId] = ws;
 
