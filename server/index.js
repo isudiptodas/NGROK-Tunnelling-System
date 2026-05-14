@@ -1,23 +1,26 @@
-import express from 'express';
+import express from "express";
+import { WebSocketServer } from "ws";
 import crypto from "crypto";
-import { WebSocketServer } from 'ws';
 
 const app = express();
 
 const tunnels = {};
 
-const httpServer = app.listen(3000, "0.0.0.0", () => {
-  console.log("HTTP server running on port 80");
+// Public browser server
+app.listen(3000, "0.0.0.0", () => {
+  console.log("HTTP server running on port 3000");
 });
 
-//const wss = new WebSocketServer({ port: 8080 });
+// Tunnel websocket server
 const wss = new WebSocketServer({
   host: "0.0.0.0",
-  port: 8080
+  port: 8080,
 });
 
 wss.on("connection", (ws) => {
-  const tunnelId = crypto.randomBytes(3).toString("hex");
+  const tunnelId = crypto
+    .randomBytes(3)
+    .toString("hex");
 
   tunnels[tunnelId] = ws;
 
@@ -32,13 +35,12 @@ wss.on("connection", (ws) => {
 
   ws.on("close", () => {
     delete tunnels[tunnelId];
-    console.log("Client disconnected:", tunnelId);
   });
 });
 
-// Public URL route
-app.get("/:tunnelId", (req, res) => {
-  const { tunnelId } = req.params;
+// Browser → EC2 → Laptop
+app.get("/:tunnelId/*", (req, res) => {
+  const tunnelId = req.params.tunnelId;
 
   const client = tunnels[tunnelId];
 
@@ -46,14 +48,19 @@ app.get("/:tunnelId", (req, res) => {
     return res.send("Tunnel not found");
   }
 
-  // Ask laptop for localhost data
+  // Remove tunnelId from URL
+  const path = req.originalUrl.replace(
+    `/${tunnelId}`,
+    ""
+  );
+
   client.send(
     JSON.stringify({
       type: "request",
+      path,
     })
   );
 
-  // Wait for response
   client.once("message", (message) => {
     const data = JSON.parse(message);
 
